@@ -9,6 +9,7 @@ import mongoose, { connect, ConnectOptions } from "mongoose";
 import { MONGODB_URI, REDIS_URI } from "./constant";
 import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
+import socketClient from "socket.io-client";
 
 mongoose.set("strictQuery", false);
 export const client = createClient({
@@ -48,6 +49,17 @@ export async function init() {
   });
   await client.connect();
   await FileRouter(router, __dirname);
+
+  const io = require("socket.io")(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
+
+  io.on("connection", (socket: any) => {
+    console.log("a user connected");
+  });
 
   client.on("error", (err) => console.log("Redis Server Error", err));
 }

@@ -11,15 +11,15 @@ import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
 
 mongoose.set("strictQuery", false);
+export const client = createClient({
+  url: REDIS_URI,
+});
 
 export async function init() {
   process.on("uncaughtException", (err) => {
     console.log(err);
   });
 
-  const client = createClient({
-    url: REDIS_URI,
-  });
   const app = express();
   const router = express.Router();
 

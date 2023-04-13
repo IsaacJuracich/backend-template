@@ -6,40 +6,22 @@ const S3 = new AWS.S3({
   accessKeyId: "",
   secretAccessKey: "",
 });
-const BUCKET = "palace";
+const BUCKET = "";
 
-export async function upload({
-  applicationPubKey,
-  randomId,
-  encryptedMetadata,
-}: {
-  applicationPubKey: string;
-  randomId: string;
-  encryptedMetadata: string;
-}) {
+export async function upload({ path, body }: { path: string; body: string }) {
   const params = {
     Bucket: BUCKET,
-    Key: `metadata/${applicationPubKey}/${randomId}`,
-    Body: encryptedMetadata,
+    Key: path,
+    Body: body,
     ACL: "public-read",
   };
-  const test = await S3.upload(params).promise();
-
-  console.log(`File uploaded successfully. ${test.Location}`);
-
-  return true;
+  return (await S3.upload(params).promise()).Location;
 }
 
-export async function get({
-  applicationPubKey,
-  randonId,
-}: {
-  applicationPubKey: string;
-  randonId: string;
-}) {
+export async function get({ path }: { path: string }) {
   const params = {
     Bucket: BUCKET,
-    Key: `metadata/${applicationPubKey}/${randonId}`,
+    Key: path,
   };
   return (await S3.getObject(params).promise()).Body.toString();
 }

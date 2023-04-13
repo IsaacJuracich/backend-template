@@ -9,7 +9,6 @@ import mongoose, { connect, ConnectOptions } from "mongoose";
 import { MONGODB_URI, REDIS_URI } from "./constant";
 import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
-import socketClient from "socket.io-client";
 
 mongoose.set("strictQuery", false);
 export const client = createClient({
@@ -43,7 +42,7 @@ export async function init() {
   await connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    dbName: "solstamps_oracle",
+    dbName: "backend-example",
   } as ConnectOptions).then(() => {
     console.log("Connected to MongoDB");
   });

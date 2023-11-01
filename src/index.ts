@@ -5,7 +5,7 @@ import express from "express";
 import { createServer } from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { MONGODB_URI, REDIS_URI } from "./constant";
+import { REDIS_URI } from "./constant";
 import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
 import { Prisma, PrismaClient } from "@prisma/client";

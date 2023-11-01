@@ -56,7 +56,7 @@ export default async function FileRouter(
       if (middlewares.length > 0) {
         for (let i = 0; i < middlewares.length; i++) {
           const middleware = middlewares[i];
-          middleware(req, res, next);
+          await middleware(req, res, next);
         }
       }
 

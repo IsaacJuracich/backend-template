@@ -2,6 +2,6 @@
   "verbose": true,
   "ignore": ["**/*.test.ts", "**/*.spec.ts", ".git", "node_modules"],
   "watch": ["src"],
-  "exec": "node -r dotenv/config -r ts-node/register src/index.ts",
+  "exec": "node -r dotenv/config -r tsconfig-paths/register -r ts-node/register src/index.ts",
   "ext": "ts"
 }

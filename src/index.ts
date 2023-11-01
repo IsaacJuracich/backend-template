@@ -10,6 +10,7 @@ import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
 import { Prisma, PrismaClient } from "@prisma/client";
 import UserSession from "./middleware/session/user";
+import { createUserToken } from "./libs/session";
 
 export const client = createClient({
   url: REDIS_URI,

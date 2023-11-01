@@ -1,57 +1,155 @@
 import express, { RequestHandler } from "express";
-import { lstatSync, readdirSync } from "fs";
+import { readdirSync, lstatSync } from "fs";
+import moment from "moment";
 
-interface IApiRoute {
+type Route = {
+  reqPath: string;
   path: string;
   handler: RequestHandler;
-  reqPath: string;
-}
-const apiRoutes = [] as IApiRoute[];
+  method: string;
+};
+
 let dir_name: string;
+const routes = new Map<string, Route>();
 
 export default async function FileRouter(
   router: express.Router,
   dirname: string
 ) {
   dir_name = dirname;
-  await getApiRoutes(dirname + "/routes/");
 
-  router.all("*", async (req, res) => {
-    const route = apiRoutes.find((route) => {
-      if (route.path.endsWith("index.js") || route.path.endsWith("index.ts")) {
-        let requestingPath = req.path;
-        const reqPath = req.path.split("/");
-        const routePath = route.reqPath.slice(0, -1).split("/");
+  const start = Date.now();
 
-        for (const [i, reqPathElement] of reqPath.entries()) {
-          const routePathElement = routePath[i];
-          if (!reqPathElement || !routePathElement) continue;
-          const param = routePathElement.match(/\[(.*?)\]/);
+  await getRoutes(dirname + "/routes/");
 
-          if (param) {
-            const paramName = param[1].replace("[]", "");
-            req.params[paramName] = reqPathElement;
-            requestingPath = requestingPath.replace(
-              reqPathElement,
-              `[${paramName}]`
-            );
-          }
-        }
-        return (
-          route.reqPath === requestingPath ||
-          route.reqPath.slice(0, -1) === requestingPath
-        );
-      }
+  console.log(
+    "[FileRouter] Cached routes loaded in",
+    moment(Date.now() - start).format("mm:ss.SSS") + " seconds"
+  );
+  console.log("[FileRouter] Routes", routes);
 
-      return route.reqPath === req.path;
-    });
+  router.all("*", async (req, res, next) => {
+    try {
+      const path = req.path;
 
-    if (route) return route.handler(req, res, null);
-    res.status(404).send("Not Found");
+      const route = await getRoute(path);
+
+      if (!route) return next();
+
+      const {
+        route: { handler },
+        params,
+      } = route;
+
+      if (!handler) return next();
+
+      req.params = {
+        ...req.params,
+        ...params,
+      };
+
+      if (req.method.toLowerCase() !== route.route.method.toLowerCase())
+        return next();
+
+      return handler(req, res, next);
+    } catch (err) {
+      console.log("[File Router] Error", err);
+      return res.status(500).json({
+        message: "Internal Server Error",
+      });
+    }
   });
 }
 
-export async function getApiRoutes(path: string) {
+export async function getHandler(route: Route): Promise<{
+  handler: RequestHandler;
+  method: string;
+} | null> {
+  try {
+    const { path } = route;
+    const handler = await import(path);
+
+    const handlerFunction =
+      handler.default || handler.get || handler.post || handler.handler;
+    const method = Object.keys(handler)[0];
+
+    return {
+      handler: handlerFunction,
+      method: method,
+    };
+  } catch (err) {
+    console.log("[File Router] Error", err);
+    return null;
+  }
+}
+
+export async function getRoute(reqPath: string): Promise<{
+  route: Route;
+  params: any;
+} | null> {
+  const route = routes.get(reqPath);
+
+  if (!route) {
+    for (const [key, value] of routes) {
+      const splitKey = key.split("/");
+      const splitReqPath = reqPath.split("/");
+
+      if (splitKey.length !== splitReqPath.length) {
+        const lastSplitKey = splitKey[splitKey.length - 1];
+
+        if (lastSplitKey === "[...slug]") {
+          const route = await getRoute(
+            splitKey.slice(0, splitKey.length - 1).join("/") + "/[...slug]"
+          );
+
+          if (!route) continue;
+
+          return {
+            route: route.route,
+            params: {
+              ...route.params,
+              slug: splitReqPath.slice(splitKey.length - 1),
+            },
+          };
+        }
+
+        continue;
+      }
+      for (let i = 0; i < splitKey.length; i++) {
+        const key = splitKey[i];
+        const reqPath = splitReqPath[i];
+
+        if (key.startsWith("[") && key.endsWith("]")) {
+          const keyName = key.replace("[", "").replace("]", "");
+          const keyVal = reqPath;
+
+          const route = await getRoute(
+            splitKey.slice(0, i).join("/") + "/" + key
+          );
+
+          if (!route) continue;
+
+          return {
+            route: route.route,
+            params: {
+              ...route.params,
+              [keyName]: keyVal,
+            },
+          };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  return {
+    route,
+    params: {},
+  };
+}
+
+export async function getRoutes(path: string) {
   const files = readdirSync(path);
 
   for (let i = 0; i < files.length; i++) {
@@ -59,19 +157,28 @@ export async function getApiRoutes(path: string) {
     const isFolder = lstatSync(path + file).isDirectory();
 
     if (file.endsWith(".js") || file.endsWith(".ts")) {
-      const reqPath = (path + file)
-        .replace(dir_name + "/routes", "")
-        .replace(".ts", "")
-        .replace(".js", "")
-        .replace("index", "");
+      const regex = new RegExp(
+        `^${dir_name}/routes|(\\.ts|\\.js|/index)?`,
+        "g"
+      );
+      const reqPath = (path + file).replace(regex, "");
 
-      apiRoutes.push({
+      const route = {
+        reqPath,
         path: path + file,
-        handler: await import(path + file).then((module) => module.handler),
-        reqPath: reqPath,
+      } as Route;
+
+      const handlerInformation = await getHandler(route);
+      if (!handlerInformation) continue;
+
+      const { handler, method } = handlerInformation;
+      routes.set(reqPath, {
+        ...route,
+        handler,
+        method,
       });
     }
 
-    if (isFolder) await getApiRoutes(path + file + "/");
+    if (isFolder) await getRoutes(path + file + "/");
   }
 }

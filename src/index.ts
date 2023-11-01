@@ -33,32 +33,11 @@ export async function init() {
   app.use("/api", router);
 
   const server = createServer(app);
-  const port = process.env.PORT || 3035;
+  const port = process.env.PORT || 3065;
 
-  server.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-  });
-
-  await connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: "backend-example",
-  } as ConnectOptions).then(() => {
-    console.log("Connected to MongoDB");
-  });
   await client.connect();
   await FileRouter(router, __dirname);
-
-  const io = require("socket.io")(server, {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-    },
-  });
-
-  io.on("connection", (socket: any) => {
-    console.log("a user connected");
-  });
+  server.listen(port, () => console.log(`Server listening on port ${port}`));
 
   client.on("error", (err) => console.log("Redis Server Error", err));
 }

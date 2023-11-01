@@ -22,9 +22,27 @@ To get started with this Backend Template, follow these steps:
 2.  **Install Dependencies:** Navigate to the project directory and install the required dependencies using npm or yarn.
 
     ```bash
-    cd backend-template
     yarn install
     ```
+
+3.  **Configuration:** Update the .env file with your
+
+    ```bash
+    DATABASE_URL
+    JWT_SECRET
+    PORT
+    ```
+
+    **File Router:** Follow this
+    [Example Routes](https://github.com/IsaacJuracich/backend-template/tree/main/src/routes/example)
+
+4.  **Start the Server:** Launch the backend server using the following command:
+
+    ```bash
+    npm run dev
+    ```
+
+5.  **Production:**
 
 ## Usage and Customization
 

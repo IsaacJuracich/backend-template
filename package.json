@@ -7,7 +7,9 @@
     "dev": "nodemon .",
     "build": "yarn install && npx prisma db push && npx prisma generate && tsc -p .",
     "start": "node dist/index.js",
-    "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+    "test-file-router": "ts-mocha --project ./tsconfig.json tests/file-router/index.ts",
+    "test-encryption": "ts-mocha --project ./tsconfig.json tests/encryption/index.ts",
+    "test": "ts-mocha --project ./tsconfig.json tests/**/*.ts"
   },
   "keywords": [],
   "author": "",

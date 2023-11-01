@@ -1,6 +1,7 @@
 import express, { RequestHandler } from "express";
 import { readdirSync, lstatSync } from "fs";
 import moment from "moment";
+import UserSession from "./session/user";
 
 type Route = {
   reqPath: string;
@@ -14,7 +15,8 @@ const routes = new Map<string, Route>();
 
 export default async function FileRouter(
   router: express.Router,
-  dirname: string
+  dirname: string,
+  middlewares: RequestHandler[] = []
 ) {
   dir_name = dirname;
 
@@ -50,6 +52,13 @@ export default async function FileRouter(
 
       if (req.method.toLowerCase() !== route.route.method.toLowerCase())
         return next();
+
+      if (middlewares.length > 0) {
+        for (let i = 0; i < middlewares.length; i++) {
+          const middleware = middlewares[i];
+          middleware(req, res, next);
+        }
+      }
 
       return handler(req, res, next);
     } catch (err) {

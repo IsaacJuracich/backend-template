@@ -5,15 +5,16 @@ import express from "express";
 import { createServer } from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
-import mongoose, { connect, ConnectOptions } from "mongoose";
 import { MONGODB_URI, REDIS_URI } from "./constant";
 import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
+import { Prisma, PrismaClient } from "@prisma/client";
+import UserSession from "./middleware/session/user";
 
-mongoose.set("strictQuery", false);
 export const client = createClient({
   url: REDIS_URI,
 });
+export const prisma = new PrismaClient() as PrismaClient;
 
 export async function init() {
   process.on("uncaughtException", (err) => {
@@ -30,13 +31,15 @@ export async function init() {
     })
   );
   app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+
   app.use("/api", router);
 
   const server = createServer(app);
   const port = process.env.PORT || 3065;
 
   await client.connect();
-  await FileRouter(router, __dirname);
+  await FileRouter(router, __dirname, [UserSession]);
+
   server.listen(port, () => console.log(`Server listening on port ${port}`));
 
   client.on("error", (err) => console.log("Redis Server Error", err));

@@ -4,7 +4,6 @@
     "module": "commonjs",
     "pretty": true,
     "sourceMap": true,
-    "outDir": "dist",
     "importHelpers": true,
     "strict": true,
     "noImplicitAny": false,
@@ -16,7 +15,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": ".",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -38,7 +36,14 @@
       "esnext.asynciterable"
     ],
     "skipLibCheck": true,
-    "noEmit": true,
-    "noEmitOnError": true
-  }
+    "noEmitOnError": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

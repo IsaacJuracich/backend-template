@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon .",
-    "build": "tsc -p .",
+    "build": "yarn install && npx prisma db push && npx prisma generate && tsc -p .",
     "start": "node dist/index.js",
     "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
   },
@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/iron": "^7.0.1",
+    "@prisma/client": "5.2.0",
     "@types/chai": "^4.3.9",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
@@ -30,18 +32,17 @@
     "moment": "^2.29.4",
     "mongoose": "^7.0.3",
     "node-fetch": "^2.6.9",
+    "nodemon": "^2.0.22",
+    "prisma": "^5.5.2",
     "redis": "^4.6.5",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "text-encoding": "^0.7.0",
     "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
     "tweetnacl": "^1.0.3",
     "typescript": "^5.0.4",
     "zod": "^3.21.4"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1",
-    "tslib": "^2.5.0"
   }
 }

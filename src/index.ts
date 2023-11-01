@@ -5,7 +5,7 @@ import express from "express";
 import { createServer } from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { REDIS_URI } from "./constant";
+import { REDIS_URI, SERVER_PORT } from "./constant";
 import { createClient } from "redis";
 import FileRouter from "./middleware/fileRouter";
 import { Prisma, PrismaClient } from "@prisma/client";
@@ -37,7 +37,7 @@ export async function init() {
   app.use("/api", router);
 
   const server = createServer(app);
-  const port = process.env.PORT || 3065;
+  const port = SERVER_PORT;
 
   await client.connect();
   await FileRouter(router, __dirname);

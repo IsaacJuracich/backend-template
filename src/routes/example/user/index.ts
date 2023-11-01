@@ -1,13 +1,21 @@
+import UserSession from "@/middleware/session/user";
 import { RequestHandler } from "express";
 
-export const post: RequestHandler = async (req, res) => {
-  const { userID } = req.params;
+export const post = [
+  UserSession,
+  async (req, res, next) => {
+    console.log("headers", req.headers);
 
-  // @ts-ignore
-  console.log("req.params", req.params);
+    return next();
+  },
+  async (req, res) => {
+    const { userID } = req.params;
 
-  return res.status(200).json({
-    message: "Success",
-    userID,
-  });
-};
+    console.log("req.params", req.params);
+
+    return res.status(200).json({
+      message: "Success",
+      userID,
+    });
+  },
+] as RequestHandler[];

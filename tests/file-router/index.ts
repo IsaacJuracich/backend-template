@@ -2,8 +2,8 @@ import fetch from "node-fetch";
 import { expect } from "chai";
 
 const USER_TOKEN =
-  "Fe26.2**cfb2296a8f6bddf7de08db77fb543847529e33b9346f6b7bdce9cb21e5701c6e*T9InqAkWP_ZLmbkS8VlOVA*eiJDJrBKhaa_-T-mWBpHcg**f378d1ef06f42e98d3624a4ea344526c8da207c76f10a657c0600f8e2d6c3e38*OJug-UaW4fFWz373Bffgia5EjbzgJgJ7vkYflNRl_jA";
-const USER_ID = "1";
+  "Fe26.2**c04da3f18161a8dfee900a65fab58880ded86dcdcb65805c4bbd7a771a16b3dc*bZZvGxPBsbhV5elj0BL-vg*rT1cFsLv6ybXxri7myp9WJO4VEpxFyqgNJpvwAe71nejGKvdFQdc_gIh9utNKPfg**f552e4e8cc596e6b7771d0bc170d43a1c3df8734db146835d389aa24506bcfcb*uVMc4Fa5ab_IqA46IpWrMWZ2_O4Z1VDSKAe5AJbr1tU";
+const USER_ID = "654270f39da445c2d468725e";
 
 describe("File Router", () => {
   it("Example Post Request", async () => {

@@ -15,8 +15,7 @@ const routes = new Map<string, Route>();
 
 export default async function FileRouter(
   router: express.Router,
-  dirname: string,
-  middlewares: RequestHandler[] = []
+  dirname: string
 ) {
   dir_name = dirname;
 
@@ -53,10 +52,20 @@ export default async function FileRouter(
       if (req.method.toLowerCase() !== route.route.method.toLowerCase())
         return next();
 
-      if (middlewares.length > 0) {
-        for (let i = 0; i < middlewares.length; i++) {
-          const middleware = middlewares[i];
-          await middleware(req, res, next);
+      if (typeof handler === "object") {
+        if (!handler) return next();
+
+        const handlerFixed = handler as RequestHandler[];
+        for (let i = 0; i < handlerFixed.length; i++) {
+          const handlerFunction = handlerFixed[i];
+
+          if (i === handlerFixed.length - 1) {
+            console.log("handler", typeof handlerFunction);
+            return handlerFunction(req, res, next);
+          }
+          const middlewareFunction = handlerFunction;
+
+          await middlewareFunction(req, res, next);
         }
       }
 

@@ -11,6 +11,7 @@ import FileRouter from "./middleware/fileRouter";
 import { Prisma, PrismaClient } from "@prisma/client";
 import UserSession from "./middleware/session/user";
 import { createUserToken } from "./libs/session";
+import { createPrismaRedisCache } from "prisma-redis-middleware";
 
 export const client = createClient({
   url: REDIS_URI,
@@ -39,7 +40,7 @@ export async function init() {
   const port = process.env.PORT || 3065;
 
   await client.connect();
-  await FileRouter(router, __dirname, [UserSession]);
+  await FileRouter(router, __dirname);
 
   server.listen(port, () => console.log(`Server listening on port ${port}`));
 
